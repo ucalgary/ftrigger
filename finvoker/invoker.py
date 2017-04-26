@@ -63,7 +63,7 @@ class InvocationManager(object):
         if not matching_invokers:
             return
 
-        invoker_args = {k[len(self._invoker_label):]: v for k: v in labels
-                        if k.startswith(self._invoker_label)}
+        invoker_args = {k[len(self._invoker_label) + 1:]: v for k, v in labels.items()
+                        if k.startswith(self._invoker_label + '_')}
         log.debug(f'Invoker arguments: {invoker_args}')
         [i[function_idx](service, **finvoker_args) for i in matching_invokers if i[function_idx]]
