@@ -39,11 +39,10 @@ class InvocationManager(object):
             if not existing_service:
                 # register a new service
                 log.debug(f'New service: {service.attrs["Spec"]["Name"]} ({service.id})')
+                self._services[service.id] = service
             elif service.attrs['UpdatedAt'] > existing_service.attrs['UpdatedAt']:
                 # maybe update an already registered service
                 log.debug(f'Updated service: {service.attrs["Spec"]["Name"]} ({service.id})')
-
-            self._services[service.id] = service
 
         # Scan for removed services
         for service_id in set(self._services.keys()) - set([s.id for s in services]):
