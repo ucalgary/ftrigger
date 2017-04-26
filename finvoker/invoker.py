@@ -18,6 +18,7 @@ class InvocationManager(object):
         self.last_refresh = ''
         self._invokers = []
         self._services = {}
+        self._invoker_label = 'finvoker'
 
     def register(self, matchstr, add_f, remove_f=None):
         invokers.add((re.compile(matchstr, flags), add_f, remove_f))
@@ -28,7 +29,7 @@ class InvocationManager(object):
         self.loop.run_forever()
 
     def refresh_services(self):
-        services = list(filter(lambda s: 'finvoker' in s.attrs.get('Spec', {}).get('Labels', {}),
+        services = list(filter(lambda s: self._invoker_label in s.attrs.get('Spec', {}).get('Labels', {}),
                                self.client.services.list()))
 
         # Scan for new and updated services
