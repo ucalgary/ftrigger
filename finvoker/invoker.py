@@ -1,8 +1,12 @@
 import asyncio
 import datetime
+import logging
 import re
 
 import docker
+
+
+log = logging.getLogger(__name__)
 
 
 class InvocationManager(object):
@@ -16,7 +20,7 @@ class InvocationManager(object):
 
     def register(self, matchstr, add_f, remove_f=None):
         invokers.add((re.compile(matchstr, flags), add_f, remove_f))
-        logger.info(f'Registered {func.__name__} for {matchstr}')
+        log.info(f'Registered {func.__name__} for {matchstr}')
 
     def run(self):
         self.refresh_services()
