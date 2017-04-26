@@ -51,3 +51,16 @@ class InvocationManager(object):
 
         self.last_refresh = datetime.datetime.utcnow().isoformat()
         self.loop.call_later(self.refresh_interval, self.refresh_services)
+
+    def _notify_for_service(self, service, function_idx):
+        labels = service.attrs.get('Spec', {}).get('Labels', {})
+        invoker_type = labels.get(self._invoker_label)
+
+        matching_invokers = list(filter(lambda i: i[0].match(invoker_type), self._invokers))
+        if not matching_invokers:
+            return
+
+        invoker_args = {k[len(self._invoker_label):]: v for k: v in labels
+                        if k.startswith(self._invoker_label)}
+        log.debug(f'Invoker arguments: {invoker_args}')
+        [i[function_idx](service, **finvoker_args) for i in matching_invokers if i[function_idx]]
