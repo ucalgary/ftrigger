@@ -20,8 +20,8 @@ class InvocationManager(object):
         self._services = {}
         self._invoker_label = 'finvoker'
 
-    def register(self, matchstr, add_f, remove_f=None):
-        invokers.add((re.compile(matchstr, flags), add_f, remove_f))
+    def register(self, matchstr, add_f, update_f=None, remove_f=None):
+        invokers.add((re.compile(matchstr, flags), add_f, update_f, remove_f))
         log.info(f'Registered {func.__name__} for {matchstr}')
 
     def run(self):
