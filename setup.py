@@ -3,7 +3,7 @@ from setuptools import setup
 
 
 install_requires = [
-
+    'docker==2.2.1'
 ]
 
 
