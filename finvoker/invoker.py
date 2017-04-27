@@ -13,7 +13,7 @@ class InvocationManager(object):
 
     invokers = []
 
-    def __init__(self, refresh_interval=5, label='finvoke'):
+    def __init__(self, refresh_interval=5, label='finvoker'):
         self.client = docker.from_env()
         self.loop = asyncio.new_event_loop()
         self.refresh_interval = refresh_interval
