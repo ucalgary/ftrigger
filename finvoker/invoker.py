@@ -11,18 +11,15 @@ log = logging.getLogger(__name__)
 
 class InvocationManager(object):
 
+    invokers = []
+
     def __init__(self, refresh_interval=5):
         self.client = docker.from_env()
         self.loop = asyncio.new_event_loop()
         self.refresh_interval = refresh_interval
         self.last_refresh = ''
-        self._invokers = []
         self._services = {}
         self._invoker_label = 'finvoker'
-
-    def register(self, matchstr, add_f, update_f=None, remove_f=None, flags=0):
-        self._invokers.append((re.compile(matchstr, flags), add_f, update_f, remove_f))
-        log.info(f'Registered {add_f.__name__} for {matchstr}')
 
     def run(self):
         self.refresh_services()
@@ -59,7 +56,7 @@ class InvocationManager(object):
         labels = service.attrs.get('Spec', {}).get('Labels', {})
         invoker_type = labels.get(self._invoker_label)
 
-        matching_invokers = list(filter(lambda i: i[0].match(invoker_type), self._invokers))
+        matching_invokers = list(filter(lambda i: i[0].match(invoker_type), self.invokers))
         if not matching_invokers:
             return
 
@@ -67,3 +64,8 @@ class InvocationManager(object):
                         if k.startswith(self._invoker_label + '_')}
         log.debug(f'Invoker arguments: {invoker_args}')
         [i[function_idx](service, **finvoker_args) for i in matching_invokers if i[function_idx]]
+
+
+def register(matchstr, add_f, update_f=None, remove_f=None, flags=0):
+    InvocationManager.invokers.append((re.compile(matchstr, flags), add_f, update_f, remove_f))
+    log.info(f'Registered {add_f.__name__} for {matchstr}')
