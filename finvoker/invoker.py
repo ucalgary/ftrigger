@@ -13,13 +13,13 @@ class InvocationManager(object):
 
     invokers = []
 
-    def __init__(self, refresh_interval=5):
+    def __init__(self, refresh_interval=5, label='finvoke'):
         self.client = docker.from_env()
         self.loop = asyncio.new_event_loop()
         self.refresh_interval = refresh_interval
         self.last_refresh = ''
         self._services = {}
-        self._invoker_label = 'finvoker'
+        self._invoker_label = label
 
     def run(self):
         self.refresh_services()
