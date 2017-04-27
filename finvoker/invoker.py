@@ -20,6 +20,8 @@ class InvocationManager(object):
         self.last_refresh = ''
         self._services = {}
         self._invoker_label = label
+        self._type_pattern = re.compile(f'^{label}\\.([^.]+)$')
+        self._arg_pattern = re.compile(f'^{label}\\.([^.]+)$.([^.]+)$')
 
     def run(self):
         self.refresh_services()
