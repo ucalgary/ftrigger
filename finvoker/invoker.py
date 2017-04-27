@@ -13,20 +13,24 @@ class InvocationManager(object):
 
     invokers = []
 
-    def __init__(self, refresh_interval=5):
+    def __init__(self, refresh_interval=5, label='finvoker'):
         self.client = docker.from_env()
         self.loop = asyncio.new_event_loop()
         self.refresh_interval = refresh_interval
         self.last_refresh = ''
         self._services = {}
-        self._invoker_label = 'finvoker'
+        self._invoker_label = label
+        self._type_pattern = re.compile(f'^{label}\\.([^.]+)$')
+        self._arg_pattern = re.compile(f'^{label}\\.([^.]+)$.([^.]+)$')
 
     def run(self):
         self.refresh_services()
         self.loop.run_forever()
 
     def refresh_services(self):
-        services = list(filter(lambda s: self._invoker_label in s.attrs.get('Spec', {}).get('Labels', {}),
+        services = list(filter(lambda s: any(self._type_pattern.match(k)
+                                             for k
+                                             in s.attrs.get('Spec', {}).get('Labels', {}).keys()),
                                self.client.services.list()))
 
         # Scan for new and updated services
@@ -54,16 +58,19 @@ class InvocationManager(object):
 
     def _notify_for_service(self, service, function_idx):
         labels = service.attrs.get('Spec', {}).get('Labels', {})
-        invoker_type = labels.get(self._invoker_label)
+        invoker_types = [m.group(1) for m
+                         in [self._type_pattern.match(k) for k in labels.keys()] if m]
 
-        matching_invokers = list(filter(lambda i: i[0].match(invoker_type), self.invokers))
-        if not matching_invokers:
-            return
+        for invoker_type in invoker_types:
+            matching_invokers = list(filter(lambda i: i[0].match(invoker_type), self.invokers))
+            if not matching_invokers:
+                continue
 
-        invoker_args = {k[len(self._invoker_label) + 1:]: v for k, v in labels.items()
-                        if k.startswith(self._invoker_label + '_')}
-        log.debug(f'Invoker arguments: {invoker_args}')
-        [i[function_idx](service, **finvoker_args) for i in matching_invokers if i[function_idx]]
+            invoker_arg_pattern = re.compile(f'^{self._invoker_label}\\.{invoker_type}\\.([^.]+)$')
+            invoker_args = {m.group(1): v for m, v
+                            in [(invoker_arg_pattern.match(k), v) for k, v in labels.items()] if m}
+            log.debug(f'Invoker arguments: {invoker_args}')
+            [i[function_idx](service, **finvoker_args) for i in matching_invokers if i[function_idx]]
 
 
 def register(matchstr, add_f, update_f=None, remove_f=None, flags=0):
