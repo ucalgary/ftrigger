@@ -12,12 +12,13 @@ class InvokerBase(object):
 
     invokers = []
 
-    def __init__(self, refresh_interval=5, label='finvoker'):
+    def __init__(self, refresh_interval=5, label='finvoker', name=None):
         self.client = docker.from_env()
         self.refresh_interval = refresh_interval
         self.last_refresh = 0
         self._services = {}
         self._invoker_label = label
+        self._invoker_name = name
         self._type_pattern = re.compile(f'^{label}\\.([^.]+)$')
         self._arg_pattern = re.compile(f'^{label}\\.([^.]+)$.([^.]+)$')
 
