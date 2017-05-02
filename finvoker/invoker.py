@@ -1,4 +1,3 @@
-import asyncio
 import datetime
 import logging
 import re
@@ -15,7 +14,6 @@ class InvokerBase(object):
 
     def __init__(self, refresh_interval=5, label='finvoker'):
         self.client = docker.from_env()
-        self.loop = asyncio.new_event_loop()
         self.refresh_interval = refresh_interval
         self.last_refresh = ''
         self._services = {}
@@ -53,7 +51,6 @@ class InvokerBase(object):
             self._notify_for_service(service, 3)
 
         self.last_refresh = datetime.datetime.utcnow().isoformat()
-        self.loop.call_later(self.refresh_interval, self.refresh_services)
 
     def _notify_for_service(self, service, function_idx):
         labels = service.attrs.get('Spec', {}).get('Labels', {})
