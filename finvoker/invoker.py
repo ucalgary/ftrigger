@@ -19,7 +19,7 @@ class InvokerBase(object):
         self._services = {}
         self._label = label
         self._name = name
-        self._register_pattern = re.compile(f'^{label}\\.{name}$')
+        self._register_label = f'{label}.{name}'
         self._argument_pattern = re.compile(f'^{label}\\.{name}\\.([^.]+)$')
 
     @property
@@ -34,9 +34,7 @@ class InvokerBase(object):
         pass
 
     def refresh_services(self):
-        services = list(filter(lambda s: any(self._register_pattern.match(k)
-                                             for k
-                                             in s.attrs.get('Spec', {}).get('Labels', {}).keys()),
+        services = list(filter(lambda s: self._register_label in s.attrs.get('Spec', {}).get('Labels', {}),
                                self.client.services.list()))
 
         new_services = []
