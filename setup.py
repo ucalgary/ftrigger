@@ -25,6 +25,7 @@ setup(
     install_requires=install_requires,
     dependency_links=dependency_links,
     entry_points="""
+    kafka-invoker=finvoker.kafka:main
     """,
     zip_safe=True
 )
