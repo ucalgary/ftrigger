@@ -9,7 +9,7 @@ import docker
 log = logging.getLogger(__name__)
 
 
-class InvocationManager(object):
+class InvokerBase(object):
 
     invokers = []
 
