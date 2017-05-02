@@ -18,10 +18,10 @@ log = logging.getLogger(__name__)
 class KafkaInvoker(InvokerBase):
 
     def __init__(self, label='finvoker', name='kafka', refresh_interval=5,
-                 kafka=('kafka:9092',)):
+                 kafka='kafka:9092'):
         super().__init__(label=label, name=name, refresh_interval=refresh_interval)
         self.config = {
-            'bootstrap.servers': ','.join(kafka),
+            'bootstrap.servers': kafka,
             'group.id': self._register_label,
             'default.topic.config': {
                 'auto.offset.reset': 'largest',
