@@ -24,8 +24,7 @@ class InvokerBase(object):
         self._arg_pattern = re.compile(f'^{label}\\.([^.]+)$.([^.]+)$')
 
     def run(self):
-        self.refresh_services()
-        self.loop.run_forever()
+        pass
 
     def refresh_services(self):
         services = list(filter(lambda s: any(self._type_pattern.match(k)
