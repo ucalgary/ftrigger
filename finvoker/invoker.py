@@ -73,8 +73,3 @@ class InvokerBase(object):
                 in [(self._argument_pattern.match(k), v) for k, v in labels.items()] if m}
         log.debug(f'{service.attrs["Spec"]["Name"]} arguments: {args}')
         return args
-
-
-def register(matchstr, add_f, update_f=None, remove_f=None, flags=0):
-    InvocationManager.invokers.append((re.compile(matchstr, flags), add_f, update_f, remove_f))
-    log.info(f'Registered {add_f.__name__} for {matchstr}')
