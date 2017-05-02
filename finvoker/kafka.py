@@ -1,6 +1,7 @@
 import atexit
 import collections
 import logging
+import os
 
 import requests
 try:
@@ -21,8 +22,8 @@ class KafkaInvoker(InvokerBase):
                  kafka='kafka:9092'):
         super().__init__(label=label, name=name, refresh_interval=refresh_interval)
         self.config = {
-            'bootstrap.servers': kafka,
-            'group.id': self._register_label,
+            'bootstrap.servers': os.getenv('KAFKA_BOOTSTRAP_SERVERS', kafka),
+            'group.id': os.getenv('KAFKA_CONSUMER_GROUP', self._register_label),
             'default.topic.config': {
                 'auto.offset.reset': 'largest',
                 'auto.commit.interval.ms': 5000
