@@ -17,10 +17,18 @@ class InvokerBase(object):
         self.refresh_interval = refresh_interval
         self.last_refresh = 0
         self._services = {}
-        self._invoker_label = label
-        self._invoker_name = name
+        self._label = label
+        self._name = name
         self._type_pattern = re.compile(f'^{label}\\.([^.]+)$')
         self._arg_pattern = re.compile(f'^{label}\\.([^.]+)$.([^.]+)$')
+
+    @property
+    def label(self):
+        return self._label
+
+    @property
+    def name(self):
+        return self._name
 
     def run(self):
         pass
