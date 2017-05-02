@@ -30,6 +30,10 @@ class InvokerBase(object):
                                              in s.attrs.get('Spec', {}).get('Labels', {}).keys()),
                                self.client.services.list()))
 
+        new_services = []
+        updated_services = []
+        removed_services = []
+
         # Scan for new and updated services
         for service in services:
             existing_service = self._services.get(service.id)
@@ -37,20 +41,21 @@ class InvokerBase(object):
             if not existing_service:
                 # register a new service
                 log.debug(f'New service: {service.attrs["Spec"]["Name"]} ({service.id})')
-                self._notify_for_service(service, 1)
+                new_services.append(service)
                 self._services[service.id] = service
             elif service.attrs['UpdatedAt'] > existing_service.attrs['UpdatedAt']:
                 # maybe update an already registered service
                 log.debug(f'Updated service: {service.attrs["Spec"]["Name"]} ({service.id})')
-                self._notify_for_service(service, 2)
+                updated_services.append(service)
 
         # Scan for removed services
         for service_id in set(self._services.keys()) - set([s.id for s in services]):
             service = self._services.pop(service_id)
             log.debug(f'Removed service: {service.attrs["Spec"]["Name"]} ({service.id})')
-            self._notify_for_service(service, 3)
+            removed_services.append(service)
 
         self.last_refresh = time.time()
+        return new_services, updated_services, removed_services
 
     def _notify_for_service(self, service, function_idx):
         labels = service.attrs.get('Spec', {}).get('Labels', {})
