@@ -51,7 +51,7 @@ class InvokerBase(object):
             if not existing_service:
                 # register a new service
                 log.debug(f'Add service: {service.attrs["Spec"]["Name"]} ({service.id})')
-                added_services.append(service)
+                add_services.append(service)
                 self._services[service.id] = service
             elif service.attrs['UpdatedAt'] > existing_service.attrs['UpdatedAt']:
                 # maybe update an already registered service
@@ -65,7 +65,7 @@ class InvokerBase(object):
             remove_services.append(service)
 
         self.last_refresh = time.time()
-        return add_service, update_services, remove_services
+        return add_services, update_services, remove_services
 
     def arguments(self, service):
         labels = service.attrs.get('Spec', {}).get('Labels', {})
