@@ -1,7 +1,6 @@
-import asyncio
-import datetime
 import logging
 import re
+import time
 
 import docker
 
@@ -9,29 +8,41 @@ import docker
 log = logging.getLogger(__name__)
 
 
-class InvocationManager(object):
+class InvokerBase(object):
 
     invokers = []
 
-    def __init__(self, refresh_interval=5, label='finvoker'):
+    def __init__(self, label='finvoker', name=None, refresh_interval=5):
         self.client = docker.from_env()
-        self.loop = asyncio.new_event_loop()
         self.refresh_interval = refresh_interval
-        self.last_refresh = ''
+        self.last_refresh = 0
         self._services = {}
-        self._invoker_label = label
-        self._type_pattern = re.compile(f'^{label}\\.([^.]+)$')
-        self._arg_pattern = re.compile(f'^{label}\\.([^.]+)$.([^.]+)$')
+        self._label = label
+        self._name = name
+        self._register_label = f'{label}.{name}'
+        self._argument_pattern = re.compile(f'^{label}\\.{name}\\.([^.]+)$')
+
+    @property
+    def label(self):
+        return self._label
+
+    @property
+    def name(self):
+        return self._name
 
     def run(self):
-        self.refresh_services()
-        self.loop.run_forever()
+        pass
 
-    def refresh_services(self):
-        services = list(filter(lambda s: any(self._type_pattern.match(k)
-                                             for k
-                                             in s.attrs.get('Spec', {}).get('Labels', {}).keys()),
+    def refresh_services(self, force=False):
+        if not force and time.time() - self.last_refresh < self.refresh_interval:
+            return [], [], []
+
+        services = list(filter(lambda s: self._register_label in s.attrs.get('Spec', {}).get('Labels', {}),
                                self.client.services.list()))
+
+        add_services = []
+        update_services = []
+        remove_services = []
 
         # Scan for new and updated services
         for service in services:
@@ -39,40 +50,29 @@ class InvocationManager(object):
 
             if not existing_service:
                 # register a new service
-                log.debug(f'New service: {service.attrs["Spec"]["Name"]} ({service.id})')
-                self._notify_for_service(service, 1)
+                log.debug(f'Add service: {service.attrs["Spec"]["Name"]} ({service.id})')
+                added_services.append(service)
                 self._services[service.id] = service
             elif service.attrs['UpdatedAt'] > existing_service.attrs['UpdatedAt']:
                 # maybe update an already registered service
-                log.debug(f'Updated service: {service.attrs["Spec"]["Name"]} ({service.id})')
-                self._notify_for_service(service, 2)
+                log.debug(f'Update service: {service.attrs["Spec"]["Name"]} ({service.id})')
+                update_services.append(service)
 
         # Scan for removed services
         for service_id in set(self._services.keys()) - set([s.id for s in services]):
             service = self._services.pop(service_id)
-            log.debug(f'Removed service: {service.attrs["Spec"]["Name"]} ({service.id})')
-            self._notify_for_service(service, 3)
+            log.debug(f'Remove service: {service.attrs["Spec"]["Name"]} ({service.id})')
+            remove_services.append(service)
 
-        self.last_refresh = datetime.datetime.utcnow().isoformat()
-        self.loop.call_later(self.refresh_interval, self.refresh_services)
+        self.last_refresh = time.time()
+        return add_service, update_services, remove_services
 
-    def _notify_for_service(self, service, function_idx):
+    def arguments(self, service):
         labels = service.attrs.get('Spec', {}).get('Labels', {})
-        invoker_types = [m.group(1) for m
-                         in [self._type_pattern.match(k) for k in labels.keys()] if m]
+        if self._register_label not in labels:
+            return None
 
-        for invoker_type in invoker_types:
-            matching_invokers = list(filter(lambda i: i[0].match(invoker_type), self.invokers))
-            if not matching_invokers:
-                continue
-
-            invoker_arg_pattern = re.compile(f'^{self._invoker_label}\\.{invoker_type}\\.([^.]+)$')
-            invoker_args = {m.group(1): v for m, v
-                            in [(invoker_arg_pattern.match(k), v) for k, v in labels.items()] if m}
-            log.debug(f'Invoker arguments: {invoker_args}')
-            [i[function_idx](service, **finvoker_args) for i in matching_invokers if i[function_idx]]
-
-
-def register(matchstr, add_f, update_f=None, remove_f=None, flags=0):
-    InvocationManager.invokers.append((re.compile(matchstr, flags), add_f, update_f, remove_f))
-    log.info(f'Registered {add_f.__name__} for {matchstr}')
+        args = {m.group(1): v for m, v
+                in [(self._argument_pattern.match(k), v) for k, v in labels.items()] if m}
+        log.debug(f'{service.attrs["Spec"]["Name"]} arguments: {args}')
+        return args
