@@ -64,21 +64,15 @@ class InvokerBase(object):
         self.last_refresh = time.time()
         return new_services, updated_services, removed_services
 
-    def _notify_for_service(self, service, function_idx):
+    def arguments(self, service):
         labels = service.attrs.get('Spec', {}).get('Labels', {})
-        invoker_types = [m.group(1) for m
-                         in [self._type_pattern.match(k) for k in labels.keys()] if m]
+        if self._register_label not in labels:
+            return None
 
-        for invoker_type in invoker_types:
-            matching_invokers = list(filter(lambda i: i[0].match(invoker_type), self.invokers))
-            if not matching_invokers:
-                continue
-
-            invoker_arg_pattern = re.compile(f'^{self._invoker_label}\\.{invoker_type}\\.([^.]+)$')
-            invoker_args = {m.group(1): v for m, v
-                            in [(invoker_arg_pattern.match(k), v) for k, v in labels.items()] if m}
-            log.debug(f'Invoker arguments: {invoker_args}')
-            [i[function_idx](service, **finvoker_args) for i in matching_invokers if i[function_idx]]
+        args = {m.group(1): v for m, v
+                in [(self._argument_pattern.match(k), v) for k, v in labels.items()] if m}
+        log.debug(f'{service.attrs["Spec"]["Name"]} arguments: {args}')
+        return args
 
 
 def register(matchstr, add_f, update_f=None, remove_f=None, flags=0):
