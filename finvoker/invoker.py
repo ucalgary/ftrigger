@@ -40,9 +40,9 @@ class InvokerBase(object):
         services = list(filter(lambda s: self._register_label in s.attrs.get('Spec', {}).get('Labels', {}),
                                self.client.services.list()))
 
-        new_services = []
-        updated_services = []
-        removed_services = []
+        add_services = []
+        update_services = []
+        remove_services = []
 
         # Scan for new and updated services
         for service in services:
@@ -50,22 +50,22 @@ class InvokerBase(object):
 
             if not existing_service:
                 # register a new service
-                log.debug(f'New service: {service.attrs["Spec"]["Name"]} ({service.id})')
-                new_services.append(service)
+                log.debug(f'Add service: {service.attrs["Spec"]["Name"]} ({service.id})')
+                added_services.append(service)
                 self._services[service.id] = service
             elif service.attrs['UpdatedAt'] > existing_service.attrs['UpdatedAt']:
                 # maybe update an already registered service
-                log.debug(f'Updated service: {service.attrs["Spec"]["Name"]} ({service.id})')
-                updated_services.append(service)
+                log.debug(f'Update service: {service.attrs["Spec"]["Name"]} ({service.id})')
+                update_services.append(service)
 
         # Scan for removed services
         for service_id in set(self._services.keys()) - set([s.id for s in services]):
             service = self._services.pop(service_id)
-            log.debug(f'Removed service: {service.attrs["Spec"]["Name"]} ({service.id})')
-            removed_services.append(service)
+            log.debug(f'Remove service: {service.attrs["Spec"]["Name"]} ({service.id})')
+            remove_services.append(service)
 
         self.last_refresh = time.time()
-        return new_services, updated_services, removed_services
+        return add_service, update_services, remove_services
 
     def arguments(self, service):
         labels = service.attrs.get('Spec', {}).get('Labels', {})
