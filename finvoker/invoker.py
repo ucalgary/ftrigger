@@ -33,7 +33,10 @@ class InvokerBase(object):
     def run(self):
         pass
 
-    def refresh_services(self):
+    def refresh_services(self, force=False):
+        if not force and time.time() - self.last_refresh < self.refresh_interval:
+            return [], [], []
+
         services = list(filter(lambda s: self._register_label in s.attrs.get('Spec', {}).get('Labels', {}),
                                self.client.services.list()))
 
