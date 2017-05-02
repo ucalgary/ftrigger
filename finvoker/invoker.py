@@ -1,6 +1,6 @@
-import datetime
 import logging
 import re
+import time
 
 import docker
 
@@ -15,7 +15,7 @@ class InvokerBase(object):
     def __init__(self, refresh_interval=5, label='finvoker'):
         self.client = docker.from_env()
         self.refresh_interval = refresh_interval
-        self.last_refresh = ''
+        self.last_refresh = 0
         self._services = {}
         self._invoker_label = label
         self._type_pattern = re.compile(f'^{label}\\.([^.]+)$')
@@ -50,7 +50,7 @@ class InvokerBase(object):
             log.debug(f'Removed service: {service.attrs["Spec"]["Name"]} ({service.id})')
             self._notify_for_service(service, 3)
 
-        self.last_refresh = datetime.datetime.utcnow().isoformat()
+        self.last_refresh = time.time()
 
     def _notify_for_service(self, service, function_idx):
         labels = service.attrs.get('Spec', {}).get('Labels', {})
