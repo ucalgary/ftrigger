@@ -12,7 +12,7 @@ class InvokerBase(object):
 
     invokers = []
 
-    def __init__(self, refresh_interval=5, label='finvoker', name=None):
+    def __init__(self, label='finvoker', name=None, refresh_interval=5):
         self.client = docker.from_env()
         self.refresh_interval = refresh_interval
         self.last_refresh = 0
