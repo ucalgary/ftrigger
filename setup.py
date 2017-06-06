@@ -14,12 +14,12 @@ dependency_links = [
 
 
 setup(
-    name='finvoker',
+    name='ftrigger',
     version='0.1',
-    description='Utilities for invoking FaaS functions',
+    description='Triggers for FaaS functions',
     author='King Chung Huang',
     author_email='kchuang@ucalgary.ca',
-    url='https://git.ucalgary.ca/rms/functions/finvoker',
+    url='https://github.com/ucalgary/ftrigger',
     packages=find_packages(),
     package_data={
     },
@@ -27,7 +27,7 @@ setup(
     dependency_links=dependency_links,
     entry_points="""
     [console_scripts]
-    kafka-invoker=finvoker.kafka:main
+    kafka-trigger=ftrigger.kafka:main
     """,
     zip_safe=True
 )

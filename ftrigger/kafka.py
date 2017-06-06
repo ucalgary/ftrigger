@@ -10,15 +10,15 @@ except:
     import json
 from confluent_kafka import Consumer
 
-from .invoker import InvokerBase
+from .trigger import TriggerBase
 
 
 log = logging.getLogger(__name__)
 
 
-class KafkaInvoker(InvokerBase):
+class KafkaTrigger(TriggerBase):
 
-    def __init__(self, label='finvoker', name='kafka', refresh_interval=5,
+    def __init__(self, label='ftrigger', name='kafka', refresh_interval=5,
                  kafka='kafka:9092'):
         super().__init__(label=label, name=name, refresh_interval=refresh_interval)
         self.config = {
@@ -69,5 +69,5 @@ class KafkaInvoker(InvokerBase):
 
 
 def main():
-    invoker = KafkaInvoker()
-    invoker.run()
+    trigger = KafkaTrigger()
+    trigger.run()

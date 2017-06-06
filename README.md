@@ -1,6 +1,6 @@
-# Functions as a Service Invoker (FaaS Invoker)
+# Triggers for Functions as a Service (FaaS) Functions
 
-Functions as a Service (FaaS) is a framework by Alex Ellis for building serverless functions on Docker Swarm. FaaS Invoker invokes functions exposed by FaaS based on specified conditions.
+Functions as a Service (FaaS) is a framework by Alex Ellis for building serverless functions on Docker Swarm. This provides label-based triggers for FaaS functions.
 
 ## Maintenance
 
