@@ -9,17 +9,15 @@ import docker
 log = logging.getLogger(__name__)
 
 
-class InvokerBase(object):
+class TriggerBase(object):
 
-    invokers = []
-
-    def __init__(self, label='finvoker', name=None, refresh_interval=5):
+    def __init__(self, label='ftrigger', name=None, refresh_interval=5):
         self.client = docker.from_env()
-        self.refresh_interval = int(os.getenv('INVOKER_REFRESH_INTERVAL', refresh_interval))
+        self.refresh_interval = int(os.getenv('TRIGGER_REFRESH_INTERVAL', refresh_interval))
         self.last_refresh = 0
         self._services = {}
-        self._label = os.getenv('INVOKER_LABEL', label)
-        self._name = os.getenv('INVOKER_NAME', name)
+        self._label = os.getenv('TRIGGER_LABEL', label)
+        self._name = os.getenv('TRIGGER_NAME', name)
         self._register_label = f'{label}.{name}'
         self._argument_pattern = re.compile(f'^{label}\\.{name}\\.([^.]+)$')
 
