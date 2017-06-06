@@ -65,7 +65,16 @@ class KafkaTrigger(TriggerBase):
                                     message.key().decode('utf-8'), \
                                     json.loads(message.value())
                 for service in callbacks[topic]:
-                    requests.post(f'http://gateway:8080/function/{service.attrs["Spec"]["Name"]}', data=key)
+                    data = self.function_data(service, topic, key, value)
+                    requests.post(f'http://gateway:8080/function/{service.attrs["Spec"]["Name"]}', data=data)
+
+    def function_data(self, service, topic, key, value):
+        data_opt = self.arguments(s).get('data', 'key')
+
+        if data_opt == 'key-value':
+            return json.dumps({'key': key, 'value': value})
+        else:
+            return key
 
 
 def main():
