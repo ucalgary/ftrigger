@@ -69,7 +69,7 @@ class KafkaTrigger(TriggerBase):
                     requests.post(f'http://gateway:8080/function/{service.attrs["Spec"]["Name"]}', data=data)
 
     def function_data(self, service, topic, key, value):
-        data_opt = self.arguments(s).get('data', 'key')
+        data_opt = self.arguments(service).get('data', 'key')
 
         if data_opt == 'key-value':
             return json.dumps({'key': key, 'value': value})
