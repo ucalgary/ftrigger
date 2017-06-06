@@ -4,7 +4,7 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 COPY setup.py /usr/src/app
-COPY finvoker /usr/src/app/finvoker
+COPY ftrigger /usr/src/app/ftrigger
 ARG SETUP_COMMAND=install
 RUN apk add --no-cache --virtual .build-deps \
         gcc \
@@ -14,4 +14,4 @@ RUN apk add --no-cache --virtual .build-deps \
     apk del .build-deps
 
 LABEL maintainer="King Chung Huang <kchuang@ucalgary.ca>" \
-      org.label-schema.vcs-url="https://git.ucalgary.ca/rms/functions/finvoker"
+      org.label-schema.vcs-url="https://github.com/ucalgary/ftrigger"
