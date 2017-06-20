@@ -62,8 +62,16 @@ class KafkaTrigger(TriggerBase):
                 log.debug('Empty message received')
             elif not message.error():
                 topic, key, value = message.topic(), \
-                                    message.key().decode('utf-8'), \
-                                    json.loads(message.value())
+                                    message.key(), \
+                                    message.value()
+                try:
+                    key = message.key().decode('utf-8')
+                except:
+                    pass
+                try:
+                    value = json.loads(value)
+                except:
+                    pass
                 for service in callbacks[topic]:
                     data = self.function_data(service, topic, key, value)
                     requests.post(f'http://gateway:8080/function/{service.attrs["Spec"]["Name"]}', data=data)
