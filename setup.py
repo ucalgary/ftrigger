@@ -4,7 +4,7 @@ from setuptools import setup
 
 install_requires = [
     'docker==2.2.1',
-    'confluent-kafka==0.9.4'
+    'confluent-kafka==0.11.0'
 ]
 
 
