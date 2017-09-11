@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 class TriggerBase(object):
 
-    def __init__(self, label='ftrigger', name=None, refresh_interval=5):
+    def __init__(self, label='ftrigger', name=None, refresh_interval=5, gateway='http://gateway:8080'):
         self.client = docker.from_env()
         self.refresh_interval = int(os.getenv('TRIGGER_REFRESH_INTERVAL', refresh_interval))
         self.last_refresh = 0
@@ -20,6 +20,7 @@ class TriggerBase(object):
         self._name = os.getenv('TRIGGER_NAME', name)
         self._register_label = f'{label}.{name}'
         self._argument_pattern = re.compile(f'^{label}\\.{name}\\.([^.]+)$')
+        self._gateway_base = gateway.rstrip('/')
 
     @property
     def label(self):
