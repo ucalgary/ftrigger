@@ -79,6 +79,8 @@ class TriggerBase(object):
         remove_functions = []
 
         functions = self.gateway.get(self._gateway_base + '/system/functions').json()
+        for function in functions:
+            function['service'] = self.client.services.get(function['name'])
 
         # Scan for new and updated functions
         for function in functions:
