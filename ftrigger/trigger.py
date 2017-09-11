@@ -87,9 +87,15 @@ class TriggerBase(object):
             existing_function = self._functions.get(function['name'])
 
             if not existing_function:
-                pass
-            else:
-                pass
+                # register a new function
+                log.debug(f'Add function: {function["name"]} ({funcion["service"].id})')
+                add_functions.append(function)
+                self._functions[function['name']] = function
+            elif function['service'].attrs['UpdatedAt'] > existing_function['service'].attrs['UpdatedAt']:
+                # maybe update an already registered function
+                log.debug(f'Update function: {function["name"]} ({funcion["service"].id})')
+                update_functions.append(function)
+                self._functions[function['name']] = function
 
         # Scan for removed functions
         for function_name in set(self._functions.keys()) - set([f['name'] for f in functions]):
