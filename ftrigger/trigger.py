@@ -17,6 +17,7 @@ class TriggerBase(object):
         self.refresh_interval = int(os.getenv('TRIGGER_REFRESH_INTERVAL', refresh_interval))
         self.last_refresh = 0
         self._services = {}
+        self._functions = {}
         self._label = os.getenv('TRIGGER_LABEL', label)
         self._name = os.getenv('TRIGGER_NAME', name)
         self._register_label = f'{label}.{name}'
