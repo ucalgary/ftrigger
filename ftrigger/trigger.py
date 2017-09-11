@@ -4,6 +4,7 @@ import re
 import time
 
 import docker
+import requests
 
 
 log = logging.getLogger(__name__)
@@ -21,6 +22,7 @@ class TriggerBase(object):
         self._register_label = f'{label}.{name}'
         self._argument_pattern = re.compile(f'^{label}\\.{name}\\.([^.]+)$')
         self._gateway_base = gateway.rstrip('/')
+        self.gateway = requests.Session()
 
     @property
     def label(self):
