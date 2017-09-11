@@ -103,6 +103,7 @@ class TriggerBase(object):
             log.debug(f'Remove function: {function["name"]} ({funcion["service"].id})')
             remove_functions.append(function)
 
+        self.last_refresh = time.time()
         return add_functions, update_functions, remove_functions
 
     def arguments(self, service):
