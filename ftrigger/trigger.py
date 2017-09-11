@@ -100,6 +100,8 @@ class TriggerBase(object):
         # Scan for removed functions
         for function_name in set(self._functions.keys()) - set([f['name'] for f in functions]):
             function = self._functions.pop(function_name)
+            log.debug(f'Remove function: {function["name"]} ({funcion["service"].id})')
+            remove_functions.append(function)
 
         return add_functions, update_functions, remove_functions
 
