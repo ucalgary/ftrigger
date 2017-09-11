@@ -66,6 +66,16 @@ class TriggerBase(object):
         self.last_refresh = time.time()
         return add_services, update_services, remove_services
 
+    def refresh_functions(self, force=False):
+        if not force and time.time() - self.last_refresh < self.refresh_interval:
+            return [], [], []
+
+        add_functions = []
+        update_functions = []
+        remove_functions = []
+
+        return add_functions, update_functions, remove_functions
+
     def arguments(self, service):
         labels = service.attrs.get('Spec', {}).get('Labels', {})
         if self._register_label not in labels:
