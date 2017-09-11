@@ -78,6 +78,21 @@ class TriggerBase(object):
         update_functions = []
         remove_functions = []
 
+        functions = self.gateway.get(self._gateway_base + '/system/functions').json()
+
+        # Scan for new and updated functions
+        for function in functions:
+            existing_function = self._functions.get(function['name'])
+
+            if not existing_function:
+                pass
+            else:
+                pass
+
+        # Scan for removed functions
+        for function_name in set(self._functions.keys()) - set([f['name'] for f in functions]):
+            function = self._functions.pop(function_name)
+
         return add_functions, update_functions, remove_functions
 
     def arguments(self, service):
