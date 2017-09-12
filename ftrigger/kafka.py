@@ -40,16 +40,16 @@ class KafkaTrigger(TriggerBase):
         atexit.register(close)
 
         while True:
-            add, update, remove = self.refresh_services()
+            add, update, remove = self.refresh_functions()
             if add or update or remove:
                 existing_topics = set(callbacks.keys())
 
-                for s in add:
-                    callbacks[self.arguments(s).get('topic')].append(s)
-                for s in update:
+                for f in add:
+                    callbacks[self.arguments(f).get('topic')].append(s)
+                for f in update:
                     pass
-                for s in remove:
-                    callbacks[self.arguments(s).get('topic')].remove(s)
+                for f in remove:
+                    callbacks[self.arguments(f).get('topic')].remove(s)
 
                 interested_topics = set(callbacks.keys())
 
@@ -72,11 +72,12 @@ class KafkaTrigger(TriggerBase):
                     value = json.loads(value)
                 except:
                     pass
-                for service in callbacks[topic]:
-                    data = self.function_data(service, topic, key, value)
-                    requests.post(f'http://gateway:8080/function/{service.attrs["Spec"]["Name"]}', data=data)
+                for function in callbacks[topic]:
+                    data = self.function_data(function, topic, key, value)
+                    requests.post(f'http://gateway:8080/function/{function["name"]}', data=data)
 
-    def function_data(self, service, topic, key, value):
+    def function_data(self, function, topic, key, value):
+        service = function['service']
         data_opt = self.arguments(service).get('data', 'key')
 
         if data_opt == 'key-value':
