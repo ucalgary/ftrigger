@@ -44,11 +44,11 @@ class KafkaTrigger(TriggerBase):
                 existing_topics = set(callbacks.keys())
 
                 for f in add:
-                    callbacks[self.arguments(f).get('topic')].append(s)
+                    callbacks[self.arguments(f).get('topic')].append(f)
                 for f in update:
                     pass
                 for f in remove:
-                    callbacks[self.arguments(f).get('topic')].remove(s)
+                    callbacks[self.arguments(f).get('topic')].remove(f)
 
                 interested_topics = set(callbacks.keys())
 
