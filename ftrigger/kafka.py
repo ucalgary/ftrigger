@@ -3,7 +3,6 @@ import collections
 import logging
 import os
 
-import requests
 try:
     import ujson as json
 except:
@@ -74,7 +73,7 @@ class KafkaTrigger(TriggerBase):
                     pass
                 for function in callbacks[topic]:
                     data = self.function_data(function, topic, key, value)
-                    requests.post(f'http://gateway:8080/function/{function["name"]}', data=data)
+                    self.gateway.post(self._gateway_base + '/function/{function["name"]}', data=data)
 
     def function_data(self, function, topic, key, value):
         service = function['service']
