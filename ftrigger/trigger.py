@@ -108,7 +108,8 @@ class TriggerBase(object):
         self.last_refresh = time.time()
         return add_functions, update_functions, remove_functions
 
-    def arguments(self, service):
+    def arguments(self, function):
+        service = function['service']
         labels = service.attrs.get('Spec', {}).get('Labels', {})
         if self._register_label not in labels:
             return None
