@@ -73,7 +73,7 @@ class KafkaTrigger(TriggerBase):
                     pass
                 for function in callbacks[topic]:
                     data = self.function_data(function, topic, key, value)
-                    self.gateway.post(self._gateway_base + '/function/{function["name"]}', data=data)
+                    self.gateway.post(self._gateway_base + f'/function/{function["name"]}', data=data)
 
     def function_data(self, function, topic, key, value):
         data_opt = self.arguments(function).get('data', 'key')
