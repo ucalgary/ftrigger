@@ -15,11 +15,11 @@ from .trigger import TriggerBase
 log = logging.getLogger(__name__)
 
 
-class KafkaTrigger(TriggerBase):
+class KafkaTrigger(object):
 
     def __init__(self, label='ftrigger', name='kafka', refresh_interval=5,
                  kafka='kafka:9092'):
-        super().__init__(label=label, name=name, refresh_interval=refresh_interval)
+        self.functions = TriggerBase(name='kafka')
         self.config = {
             'bootstrap.servers': os.getenv('KAFKA_BOOTSTRAP_SERVERS', kafka),
             'group.id': os.getenv('KAFKA_CONSUMER_GROUP', self._register_label),
@@ -39,16 +39,16 @@ class KafkaTrigger(TriggerBase):
         atexit.register(close)
 
         while True:
-            add, update, remove = self.refresh_functions()
+            add, update, remove = functions.refresh_functions()
             if add or update or remove:
                 existing_topics = set(callbacks.keys())
 
                 for f in add:
-                    callbacks[self.arguments(f).get('topic')].append(f)
+                    callbacks[functions.arguments(f).get('topic')].append(f)
                 for f in update:
                     pass
                 for f in remove:
-                    callbacks[self.arguments(f).get('topic')].remove(f)
+                    callbacks[functions.arguments(f).get('topic')].remove(f)
 
                 interested_topics = set(callbacks.keys())
 
@@ -56,7 +56,7 @@ class KafkaTrigger(TriggerBase):
                     log.debug(f'Subscribing to {interested_topics}')
                     consumer.subscribe(list(interested_topics))
 
-            message = consumer.poll(timeout=self.refresh_interval)
+            message = consumer.poll(timeout=functions.refresh_interval)
             if not message:
                 log.debug('Empty message received')
             elif not message.error():
@@ -72,11 +72,11 @@ class KafkaTrigger(TriggerBase):
                 except:
                     pass
                 for function in callbacks[topic]:
-                    data = self.function_data(function, topic, key, value)
-                    self.gateway.post(self._gateway_base + f'/function/{function["name"]}', data=data)
+                    data = functions.function_data(function, topic, key, value)
+                    functions.gateway.post(functions._gateway_base + f'/function/{function["name"]}', data=data)
 
     def function_data(self, function, topic, key, value):
-        data_opt = self.arguments(function).get('data', 'key')
+        data_opt = functions.arguments(function).get('data', 'key')
 
         if data_opt == 'key-value':
             return json.dumps({'key': key, 'value': value})
