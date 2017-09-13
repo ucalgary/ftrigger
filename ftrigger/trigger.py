@@ -10,7 +10,7 @@ import requests
 log = logging.getLogger(__name__)
 
 
-class TriggerBase(object):
+class Functions(object):
 
     def __init__(self, label='ftrigger', name=None, refresh_interval=5, gateway='http://gateway:8080'):
         self.client = docker.from_env()

@@ -9,7 +9,7 @@ except:
     import json
 from confluent_kafka import Consumer
 
-from .trigger import TriggerBase
+from .trigger import Functions
 
 
 log = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ class KafkaTrigger(object):
 
     def __init__(self, label='ftrigger', name='kafka', refresh_interval=5,
                  kafka='kafka:9092'):
-        self.functions = TriggerBase(name='kafka')
+        self.functions = Functions(name='kafka')
         self.config = {
             'bootstrap.servers': os.getenv('KAFKA_BOOTSTRAP_SERVERS', kafka),
             'group.id': os.getenv('KAFKA_CONSUMER_GROUP', self._register_label),
