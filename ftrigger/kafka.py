@@ -39,7 +39,7 @@ class KafkaTrigger(object):
         atexit.register(close)
 
         while True:
-            add, update, remove = functions.refresh_functions()
+            add, update, remove = functions.refresh()
             if add or update or remove:
                 existing_topics = set(callbacks.keys())
 

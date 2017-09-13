@@ -32,7 +32,7 @@ class Functions(object):
     def name(self):
         return self._name
 
-    def refresh_functions(self, force=False):
+    def refresh(self, force=False):
         if not force and time.time() - self.last_refresh < self.refresh_interval:
             return [], [], []
 
