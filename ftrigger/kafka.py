@@ -73,7 +73,7 @@ class KafkaTrigger(object):
                 except:
                     pass
                 for function in callbacks[topic]:
-                    data = functions.function_data(function, topic, key, value)
+                    data = self.function_data(function, topic, key, value)
                     functions.gateway.post(functions._gateway_base + f'/function/{function["name"]}', data=data)
 
     def function_data(self, function, topic, key, value):
