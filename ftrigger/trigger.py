@@ -5,6 +5,7 @@ import time
 
 import docker
 import requests
+from requests.adapters import HTTPAdapter
 
 
 log = logging.getLogger(__name__)
@@ -23,6 +24,7 @@ class Functions(object):
         self._argument_pattern = re.compile(f'^{label}\\.{name}\\.([^.]+)$')
         self._gateway_base = gateway.rstrip('/')
         self.gateway = requests.Session()
+        self.gateway.mount(self._gateway_base, HTTPAdapter(max_retries=50))
 
     @property
     def label(self):
