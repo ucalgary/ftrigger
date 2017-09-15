@@ -32,6 +32,7 @@ class KafkaTrigger(object):
     def run(self):
         consumer = Consumer(self.config)
         callbacks = collections.defaultdict(list)
+        functions = self.functions
 
         def close():
             log.info('Closing consumer')
@@ -76,7 +77,7 @@ class KafkaTrigger(object):
                     functions.gateway.post(functions._gateway_base + f'/function/{function["name"]}', data=data)
 
     def function_data(self, function, topic, key, value):
-        data_opt = functions.arguments(function).get('data', 'key')
+        data_opt = self.functions.arguments(function).get('data', 'key')
 
         if data_opt == 'key-value':
             return json.dumps({'key': key, 'value': value})
