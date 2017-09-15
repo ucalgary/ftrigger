@@ -22,7 +22,7 @@ class KafkaTrigger(object):
         self.functions = Functions(name='kafka')
         self.config = {
             'bootstrap.servers': os.getenv('KAFKA_BOOTSTRAP_SERVERS', kafka),
-            'group.id': os.getenv('KAFKA_CONSUMER_GROUP', self._register_label),
+            'group.id': os.getenv('KAFKA_CONSUMER_GROUP', self.functions._register_label),
             'default.topic.config': {
                 'auto.offset.reset': 'largest',
                 'auto.commit.interval.ms': 5000
