@@ -24,7 +24,13 @@ class Functions(object):
         self._argument_pattern = re.compile(f'^{label}\\.{name}\\.([^.]+)$')
         self._gateway_base = gateway.rstrip('/')
         self.gateway = requests.Session()
-        self.gateway.mount(self._gateway_base, HTTPAdapter(max_retries=int(os.getenv('GATEWAY_RETRY', 50))))
+        self.gateway.mount(self._gateway_base, HttpAdapter(max_retries=Retry(
+            total=None,
+            connect=int(os.getenv('GATEWAY_RETRY', 10)),
+            read=10,
+            redirect=10,
+            method_whitelist=frozenset(['HEAD', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'TRACE'])
+        )))
 
     @property
     def label(self):
