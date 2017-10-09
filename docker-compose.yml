@@ -71,6 +71,8 @@ services:
       - KAFKA_REST_HOST_NAME=kafka-rest
       - KAFKA_REST_LISTENERS=http://kafka-rest:8082
       - KAFKA_REST_BOOTSTRAP_SERVERS=PLAINTEXT://kafka:9092
+    ports:
+      - 8082:8082
     networks:
       - streaming
 
