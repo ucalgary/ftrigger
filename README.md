@@ -1,6 +1,52 @@
 # Triggers for Functions as a Service (FaaS) Functions
 
-Functions as a Service (FaaS) is a framework by Alex Ellis for building serverless functions on Docker Swarm. This provides label-based triggers for FaaS functions.
+Functions as a Service (FaaS) is a framework by Alex Ellis for building serverless functions on Docker Swarm. This repo provides a tool called `ftrigger` that is designed to sit alongside a FaaS gateway, observe labels on function services, and then automatically trigger functions based on the conditions described in the labels.
+
+The only supported trigger at the moment is for Kafka topics. A time-based trigger (something like cron) will be developed next.
+
+## Configuring Function Services to Respond to Kafka Messages
+
+FaaS functions can be declared as Docker services. If the service containers are labeled with `function: 'true'`, they will be automatically registered to a running gateway and made available.
+
+```
+echoit:
+  image: functions/alpine:health
+  labels:
+    function: "true"
+  environment:
+    fprocess: "cat"
+```
+
+ftrigger watches a running gateway and scans functions for service labels matching the pattern `ftrigger.*`, where the wildcard matches the name of a trigger service (only `kafka` is available). The trigger can be configured with labels extending from that, such as the pattern `ftrigger.kafka.*` for the kafka trigger service.
+
+In the following example, the `echoit` function is labeled to respond to Kafka messages on the `echo` topic.
+
+```
+echoit:
+  image: functions/alpine:health
+  labels:
+    function: "true"
+  environment:
+    fprocess: "cat"
+  deploy:
+    labels:
+      ftrigger.kafka: 'true'
+      ftrigger.kafka.topic: 'echo'
+```
+
+By default, the kafka trigger sends the Kafka message value as the function request body. This can be changed to a JSON object with the message key and value by setting `ftrigger.kafka.data` to `key-value`.
+
+```
+echoit:
+  ...
+  deploy:
+    labels:
+      ftrigger.kafka: 'true'
+      ftrigger.kafka.topic: 'echo'
+      ftrigger.kafka.data: 'key-value'
+```
+
+There are no other options at this time.
 
 ## Test Drive
 
@@ -23,17 +69,6 @@ The gateway logs will show that the function is being called for every message.
 Resolving: 'ftrigger_echoit'
 [1507597313] Forwarding request [] to: http://10.0.0.3:8080/
 [1507597313] took 0.002992 seconds
-```
-
-By default, only the Kafka message value is sent as input to the function. Setting `ftrigger.kafka.data` to `key-value` will cause the function to be called with a JSON object containing both the message key and value.
-
-```
-echoit:
-  deploy:
-    labels:
-      ftrigger.kafka: 'true'
-      ftrigger.kafka.topic: 'echo'
-      ftrigger.kafka.data: 'key-value'
 ```
 
 ## Maintenance
