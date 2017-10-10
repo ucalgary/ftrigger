@@ -61,6 +61,7 @@ SERVICE_NAME=ftrigger_kafka
 TASK_ID=$(docker service ps --filter 'desired-state=running' $SERVICE_NAME -q)
 CONTAINER_ID=$(docker inspect --format '{{ .Status.ContainerStatus.ContainerID }}' $TASK_ID)
 docker exec -it $CONTAINER_ID kafka-console-producer --broker-list kafka:9092 --topic echo
+(type messages here, one per line)
 ```
 
 The gateway logs will show that the function is being called for every message.
