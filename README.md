@@ -64,12 +64,30 @@ docker exec -it $CONTAINER_ID kafka-console-producer --broker-list kafka:9092 --
 (type messages here, one per line)
 ```
 
-The gateway logs will show that the function is being called for every message.
+The gateway logs will show that the function is being called for every message. Here is an example run in Play with Docker, with two messages (“abc” and “def” produced to the topic), and the gateway logs showing the echoit function called two times in response.
 
 ```
-Resolving: 'ftrigger_echoit'
-[1507597313] Forwarding request [] to: http://10.0.0.3:8080/
-[1507597313] took 0.002992 seconds
+[node1] (local) root@10.0.2.3 ~
+$ SERVICE_NAME=ftrigger_kafka
+[node1] (local) root@10.0.2.3 ~
+$ TASK_ID=$(docker service ps --filter 'desired-state=running' $SERVICE_NAME -q)
+[node1] (local) root@10.0.2.3 ~
+$ CONTAINER_ID=$(docker inspect --format '{{ .Status.ContainerStatus.ContainerID }}' $TASK_ID)
+[node1] (local) root@10.0.2.3 ~
+$ docker exec -it $CONTAINER_ID kafka-console-producer --broker-list kafka:9092 --topic echo
+abc
+def
+^C[node1] (local) root@10.0.2.3 ~
+$ docker service logs ftrigger_gateway
+ftrigger_gateway.1.p86ucxfnkubk@node1    | 2017/10/11 22:36:18 HTTP Read Timeout: 8s
+ftrigger_gateway.1.p86ucxfnkubk@node1    | 2017/10/11 22:36:18 HTTP Write Timeout: 8s
+ftrigger_gateway.1.p86ucxfnkubk@node1    | 2017/10/11 22:36:18 Docker API version: 1.32, 17.09.0-ce
+ftrigger_gateway.1.p86ucxfnkubk@node1    | Resolving: 'ftrigger_echoit'
+ftrigger_gateway.1.p86ucxfnkubk@node1    | [1507761443] Forwarding request [] to: http://10.0.1.5:8080/
+ftrigger_gateway.1.p86ucxfnkubk@node1    | [1507761443] took 0.009424 seconds
+ftrigger_gateway.1.p86ucxfnkubk@node1    | Resolving: 'ftrigger_echoit'
+ftrigger_gateway.1.p86ucxfnkubk@node1    | [1507761445] Forwarding request [] to: http://10.0.1.5:8080/
+ftrigger_gateway.1.p86ucxfnkubk@node1    | [1507761445] took 0.002649 seconds
 ```
 
 ## Maintenance
