@@ -60,7 +60,7 @@ services:
           - 'node.platform.os == linux'
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:${CONFLUENT_PLATFORM_VERSION}
+    image: confluentinc/cp-zookeeper:${CONFLUENT_PLATFORM_VERSION:-3.2.1}
     hostname: zookeeper
     environment:
       - ZOOKEEPER_CLIENT_PORT=2181
@@ -68,7 +68,7 @@ services:
       - streaming
 
   kafka:
-    image: confluentinc/cp-kafka:${CONFLUENT_PLATFORM_VERSION}
+    image: confluentinc/cp-kafka:${CONFLUENT_PLATFORM_VERSION:-3.2.1}
     hostname: kafka
     environment:
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
@@ -77,7 +77,7 @@ services:
       - streaming
 
   kafka-rest:
-    image: confluentinc/cp-kafka-rest:${CONFLUENT_PLATFORM_VERSION}
+    image: confluentinc/cp-kafka-rest:${CONFLUENT_PLATFORM_VERSION:-3.2.1}
     hostname: kafka-rest
     environment:
       - ACCESS_CONTROL_ALLOW_ORIGIN_DEFAULT="*"
@@ -92,7 +92,7 @@ services:
       - streaming
 
   schema-registry:
-    image: confluentinc/cp-schema-registry:${CONFLUENT_PLATFORM_VERSION}
+    image: confluentinc/cp-schema-registry:${CONFLUENT_PLATFORM_VERSION:-3.2.1}
     hostname: schema-registry
     environment:
       - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zookeeper:2181
