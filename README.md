@@ -1,12 +1,12 @@
-# Triggers for Functions as a Service (FaaS) Functions
+# Kafka Triggers for OpenFaaS
 
-Functions as a Service (FaaS) is a framework by Alex Ellis for building serverless functions on Docker Swarm. This repo provides a tool called `ftrigger` that is designed to sit alongside a FaaS gateway, observe labels on function services, and then automatically trigger functions based on the conditions described in the labels.
+OpenFaaS (Functions as a Service) is a framework by Alex Ellis for making serverless functions simple on Docker Swarm or Kubernetes. This repo provides a tool called `ftrigger` that is designed to sit alongside an OpenFaaS API gateway, observe labels on function services, and then automatically trigger functions based on the conditions described in the labels.
 
 The only supported trigger at the moment is for Kafka topics. A time-based trigger (something like cron) will be developed next.
 
 ## Configuring Function Services to Respond to Kafka Messages
 
-FaaS functions can be declared as Docker services. If the service containers are labeled with `function: 'true'`, they will be automatically registered to a running gateway and made available.
+OpenFaaS functions can be declared as Docker services. If the service containers are labeled with `function: 'true'`, they will be automatically registered to a running gateway and made available.
 
 ```
 echoit:
