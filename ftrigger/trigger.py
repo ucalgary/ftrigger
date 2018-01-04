@@ -3,7 +3,6 @@ import os
 import re
 import time
 
-import docker
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
@@ -15,10 +14,10 @@ log = logging.getLogger(__name__)
 class Functions(object):
 
     def __init__(self, label='ftrigger', name=None, refresh_interval=5, gateway='http://gateway:8080'):
-        self.client = docker.from_env()
         self.refresh_interval = int(os.getenv('TRIGGER_REFRESH_INTERVAL', refresh_interval))
         self.last_refresh = 0
         self._functions = {}
+        self._stack_namespace = os.getenv('STACK_NAMESPACE', None)
         self._label = os.getenv('TRIGGER_LABEL', label)
         self._name = os.getenv('TRIGGER_NAME', name)
         self._register_label = f'{label}.{name}'
@@ -50,10 +49,10 @@ class Functions(object):
         remove_functions = []
 
         functions = self.gateway.get(self._gateway_base + '/system/functions').json()
-        for function in functions:
-            function['service'] = self.client.services.get(function['name'])
-        functions = list(filter(lambda f: self._register_label in f['service'].attrs.get('Spec', {}).get('Labels', {}),
-                                functions))
+        if self._stack_namespace:
+            functions = filter(lambda f: f.get('labels', {}).get('com.docker.stack.namespace') == self._stack_namespace,
+                               functions)
+        functions = list(filter(lambda f: self._register_label in f.get('labels', {}), functions))
 
         # Scan for new and updated functions
         for function in functions:
@@ -61,31 +60,31 @@ class Functions(object):
 
             if not existing_function:
                 # register a new function
-                log.debug(f'Add function: {function["name"]} ({function["service"].id})')
+                log.debug(f'Add function: {function["name"]}')
                 add_functions.append(function)
                 self._functions[function['name']] = function
-            elif function['service'].attrs['UpdatedAt'] > existing_function['service'].attrs['UpdatedAt']:
+            elif False:
+            # elif function['service'].attrs['UpdatedAt'] > existing_function['service'].attrs['UpdatedAt']:
                 # maybe update an already registered function
-                log.debug(f'Update function: {function["name"]} ({function["service"].id})')
+                log.debug(f'Update function: {function["name"]}')
                 update_functions.append(function)
                 self._functions[function['name']] = function
 
         # Scan for removed functions
         for function_name in set(self._functions.keys()) - set([f['name'] for f in functions]):
             function = self._functions.pop(function_name)
-            log.debug(f'Remove function: {function["name"]} ({function["service"].id})')
+            log.debug(f'Remove function: {function["name"]}')
             remove_functions.append(function)
 
         self.last_refresh = time.time()
         return add_functions, update_functions, remove_functions
 
     def arguments(self, function):
-        service = function['service']
-        labels = service.attrs.get('Spec', {}).get('Labels', {})
+        labels = function.get('labels', {})
         if self._register_label not in labels:
             return None
 
         args = {m.group(1): v for m, v
                 in [(self._argument_pattern.match(k), v) for k, v in labels.items()] if m}
-        log.debug(f'{service.attrs["Spec"]["Name"]} arguments: {args}')
+        log.debug(f'{function["name"]} arguments: {args}')
         return args
