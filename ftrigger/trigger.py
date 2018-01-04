@@ -52,8 +52,7 @@ class Functions(object):
         functions = self.gateway.get(self._gateway_base + '/system/functions').json()
         for function in functions:
             function['service'] = self.client.services.get(function['name'])
-        functions = list(filter(lambda f: self._register_label in f['service'].attrs.get('Spec', {}).get('Labels', {}),
-                                functions))
+        functions = list(filter(lambda f: self._register_label in f.get('labels', {}), functions))
 
         # Scan for new and updated functions
         for function in functions:
