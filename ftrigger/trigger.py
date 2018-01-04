@@ -3,7 +3,6 @@ import os
 import re
 import time
 
-import docker
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
@@ -15,7 +14,6 @@ log = logging.getLogger(__name__)
 class Functions(object):
 
     def __init__(self, label='ftrigger', name=None, refresh_interval=5, gateway='http://gateway:8080'):
-        self.client = docker.from_env()
         self.refresh_interval = int(os.getenv('TRIGGER_REFRESH_INTERVAL', refresh_interval))
         self.last_refresh = 0
         self._functions = {}
