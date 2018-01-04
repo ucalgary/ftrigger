@@ -79,12 +79,11 @@ class Functions(object):
         return add_functions, update_functions, remove_functions
 
     def arguments(self, function):
-        service = function['service']
-        labels = service.attrs.get('Spec', {}).get('Labels', {})
+        labels = function.get('labels', {})
         if self._register_label not in labels:
             return None
 
         args = {m.group(1): v for m, v
                 in [(self._argument_pattern.match(k), v) for k, v in labels.items()] if m}
-        log.debug(f'{service.attrs["Spec"]["Name"]} arguments: {args}')
+        log.debug(f'{function["name"]} arguments: {args}')
         return args
