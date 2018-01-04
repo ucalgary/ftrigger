@@ -63,7 +63,8 @@ class Functions(object):
                 log.debug(f'Add function: {function["name"]} ({function["service"].id})')
                 add_functions.append(function)
                 self._functions[function['name']] = function
-            elif function['service'].attrs['UpdatedAt'] > existing_function['service'].attrs['UpdatedAt']:
+            elif False:
+            # elif function['service'].attrs['UpdatedAt'] > existing_function['service'].attrs['UpdatedAt']:
                 # maybe update an already registered function
                 log.debug(f'Update function: {function["name"]} ({function["service"].id})')
                 update_functions.append(function)
