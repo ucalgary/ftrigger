@@ -20,8 +20,6 @@ services:
   ftrigger-kafka:
     image: ucalgary/ftrigger:master
     command: kafka-trigger
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - functions
       - streaming
