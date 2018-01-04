@@ -29,6 +29,7 @@ class Functions(object):
             connect=int(os.getenv('GATEWAY_RETRY', 10)),
             read=10,
             redirect=10,
+            backoff_factor=0.1,
             method_whitelist=frozenset(['HEAD', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'TRACE'])
         )))
 
