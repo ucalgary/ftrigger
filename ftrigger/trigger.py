@@ -60,20 +60,20 @@ class Functions(object):
 
             if not existing_function:
                 # register a new function
-                log.debug(f'Add function: {function["name"]} ({function["service"].id})')
+                log.debug(f'Add function: {function["name"]}')
                 add_functions.append(function)
                 self._functions[function['name']] = function
             elif False:
             # elif function['service'].attrs['UpdatedAt'] > existing_function['service'].attrs['UpdatedAt']:
                 # maybe update an already registered function
-                log.debug(f'Update function: {function["name"]} ({function["service"].id})')
+                log.debug(f'Update function: {function["name"]}')
                 update_functions.append(function)
                 self._functions[function['name']] = function
 
         # Scan for removed functions
         for function_name in set(self._functions.keys()) - set([f['name'] for f in functions]):
             function = self._functions.pop(function_name)
-            log.debug(f'Remove function: {function["name"]} ({function["service"].id})')
+            log.debug(f'Remove function: {function["name"]}')
             remove_functions.append(function)
 
         self.last_refresh = time.time()
