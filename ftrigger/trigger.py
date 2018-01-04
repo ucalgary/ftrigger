@@ -49,6 +49,9 @@ class Functions(object):
         remove_functions = []
 
         functions = self.gateway.get(self._gateway_base + '/system/functions').json()
+        if self._stack_namespace:
+            functions = filter(lambda f: f.get('labels', {}).get('com.docker.stack.namespace') == self._stack_namespace,
+                               functions)
         functions = list(filter(lambda f: self._register_label in f.get('labels', {}), functions))
 
         # Scan for new and updated functions
