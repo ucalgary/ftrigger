@@ -12,7 +12,7 @@ from confluent_kafka import Consumer
 from .trigger import Functions
 
 
-log = logging.getLogger(__name__)
+log = None
 
 
 class KafkaTrigger(object):
@@ -59,7 +59,8 @@ class KafkaTrigger(object):
 
             message = consumer.poll(timeout=functions.refresh_interval)
             if not message:
-                log.debug('Empty message received')
+                # log.debug('Empty message received')
+                pass
             elif not message.error():
                 topic, key, value = message.topic(), \
                                     message.key(), \
@@ -72,9 +73,16 @@ class KafkaTrigger(object):
                     value = json.loads(value)
                 except:
                     pass
+                log.debug('topic: %s, key: %s, value: %s' % (topic, key, value))
                 for function in callbacks[topic]:
                     data = self.function_data(function, topic, key, value)
-                    functions.gateway.post(functions._gateway_base + f'/function/{function["name"]}', data=data)
+                    log.debug('  posting function: %s(%s)' % (function['name'], data))
+                    resp = functions.gateway.post(functions._gateway_base + f'/function/{function["name"]}', data=data)
+                    if resp.status_code != 200:
+                        log.error('FAAS request failed: url: %s data: %s' % (functions._gateway_base + f'/function/{function["name"]}', data))
+                        log.error('FAAS request failed: http_code:%s text: %s' % (resp, resp.text))
+                    else:
+                        log.debug('  posted function. response=%s %s' % (resp, resp.text))
 
     def function_data(self, function, topic, key, value):
         data_opt = self.functions.arguments(function).get('data', 'key')
@@ -86,5 +94,10 @@ class KafkaTrigger(object):
 
 
 def main():
+    global log
+
+    logging.basicConfig(level=os.environ.get('LOGGER_LEVEL', 'INFO').upper())
+    log = logging.getLogger(__name__)
+
     trigger = KafkaTrigger()
     trigger.run()
