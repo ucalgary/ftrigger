@@ -73,8 +73,10 @@ class KafkaTrigger(object):
                 except:
                     pass
                 for function in callbacks[topic]:
-                    data = self.function_data(function, topic, key, value)
-                    functions.gateway.post(functions._gateway_base + f'/function/{function["name"]}', data=data)
+                    converis_status = self.functions.arguments(function).get('status', None)
+                    if converis_status is None or int(converis_status) == int(value.get('status', -1)):
+                        data = self.function_data(function, topic, key, value)
+                        functions.gateway.post(functions._gateway_base + f'/function/{function["name"]}', data=data)
 
     def function_data(self, function, topic, key, value):
         data_opt = self.functions.arguments(function).get('data', 'key')
