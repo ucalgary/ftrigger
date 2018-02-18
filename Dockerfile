@@ -7,8 +7,12 @@ COPY setup.py /usr/src/app
 COPY ftrigger /usr/src/app/ftrigger
 ARG SETUP_COMMAND=install
 RUN apk add --no-cache --virtual .build-deps \
+        autoconf \
+        automake \
         gcc \
         git \
+        libtool \
+        make \
         musl-dev && \
     python setup.py ${SETUP_COMMAND} && \
     apk del .build-deps
