@@ -4,6 +4,7 @@ from setuptools import setup
 
 install_requires = [
     'confluent-kafka',
+    'pyjq',
     'requests',
 ]
 

@@ -7,6 +7,7 @@ try:
     import ujson as json
 except:
     import json
+import pyjq
 from confluent_kafka import Consumer
 
 from .trigger import Functions
@@ -73,6 +74,12 @@ class KafkaTrigger(object):
                 except:
                     pass
                 for function in callbacks[topic]:
+                    jq_filter = functions.arguments(function).get('filter')
+                    try:
+                        if jq_filter and not pyjq.first(jq_filter, value):
+                            continue
+                    except:
+                        log.error(f'Could not filter message value with {jq_filter}')
                     data = self.function_data(function, topic, key, value)
                     functions.gateway.post(functions._gateway_base + f'/function/{function["name"]}', data=data)
 
