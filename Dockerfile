@@ -5,6 +5,7 @@ WORKDIR /usr/src/app
 
 COPY setup.py /usr/src/app
 COPY ftrigger /usr/src/app/ftrigger
+COPY wait-for-it.sh /usr/local/bin/wait-for-it
 ARG SETUP_COMMAND=install
 RUN apk add --no-cache --virtual .build-deps \
         autoconf \
