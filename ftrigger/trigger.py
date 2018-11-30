@@ -53,7 +53,7 @@ class Functions(object):
         if self._stack_namespace:
             functions = filter(lambda f: f.get('labels', {}).get('com.docker.stack.namespace') == self._stack_namespace
                                 or f.get('annotations', {}).get('com.docker.stack.namespace') == self._stack_namespace,functions )
-        functions = list(filter(lambda f: self._register_label in f.get('labels', {}), functions) or
+        functions = list(filter(lambda f: self._register_label in f.get('labels', {}) or
                          self._register_label in f.get('annotations', {}) , functions) )
 
         # Scan for new and updated functions
