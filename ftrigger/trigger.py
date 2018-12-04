@@ -51,9 +51,10 @@ class Functions(object):
 
         functions = self.gateway.get(self._gateway_base + '/system/functions').json()
         if self._stack_namespace:
-            functions = filter(lambda f: f.get('labels', {}).get('com.docker.stack.namespace') == self._stack_namespace,
-                               functions)
-        functions = list(filter(lambda f: self._register_label in f.get('labels', {}), functions))
+            functions = filter(lambda f: f.get('labels', {}).get('com.docker.stack.namespace') == self._stack_namespace
+                                or f.get('annotations', {}).get('com.docker.stack.namespace') == self._stack_namespace,functions )
+        functions = list(filter(lambda f: self._register_label in f.get('labels', {}) or
+                         self._register_label in f.get('annotations', {}) , functions) )
 
         # Scan for new and updated functions
         for function in functions:
@@ -82,6 +83,7 @@ class Functions(object):
 
     def arguments(self, function):
         labels = function.get('labels', {})
+        labels.update(function.get('annotations',{}))
         if self._register_label not in labels:
             return None
 
