@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import time
+from collections import ChainMap
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -51,10 +52,8 @@ class Functions(object):
 
         functions = self.gateway.get(self._gateway_base + '/system/functions').json()
         if self._stack_namespace:
-            functions = filter(lambda f: f.get('labels', {}).get('com.docker.stack.namespace') == self._stack_namespace
-                                or f.get('annotations', {}).get('com.docker.stack.namespace') == self._stack_namespace,functions )
-        functions = list(filter(lambda f: self._register_label in f.get('labels', {}) or
-                         self._register_label in f.get('annotations', {}) , functions) )
+            functions = filter(lambda f: f.get('labels', {}).get('com.docker.stack.namespace') == self._stack_namespace, functions)
+        functions = list(filter(lambda f: self._register_label in ChainMap((f.get('labels') or {}), (f.get('annotations') or {})), functions))
 
         # Scan for new and updated functions
         for function in functions:
@@ -82,8 +81,8 @@ class Functions(object):
         return add_functions, update_functions, remove_functions
 
     def arguments(self, function):
-        labels = function.get('labels', {})
-        labels.update(function.get('annotations',{}))
+        labels = ChainMap((f.get('labels') or {}), (f.get('annotations') or {}))
+        
         if self._register_label not in labels:
             return None
 
