@@ -81,8 +81,7 @@ class Functions(object):
         return add_functions, update_functions, remove_functions
 
     def arguments(self, function):
-        labels = ChainMap((f.get('labels') or {}), (f.get('annotations') or {}))
-        
+        labels = ChainMap((function.get('labels') or {}), (function.get('annotations') or {}))
         if self._register_label not in labels:
             return None
 
